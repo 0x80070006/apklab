@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APK Lab</title>
+<link rel="icon" href="/static/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/static/icon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-row">
+        <img class="brand-logo" src="/static/logo.png" alt="" width="34" height="34">
+        <span class="brand-mark">apk<b>Lab</b></span>
+      </div>
+      <div class="tools" id="tools"></div>
+    </div>
+
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".apk,.xapk,.apks,.apkm,.dex,.jar,.aar,.zip" hidden>
+      <span class="drop-title">Déposer un APK / XAPK</span>
+      <span class="drop-sub">ou cliquer pour choisir — .apk .xapk .apks .apkm .dex .jar</span>
+      <div class="drop-progress" id="drop-progress"><i></i></div>
+    </label>
+
+    <div class="opts">
+      <label class="opt"><input type="checkbox" id="opt-jadx" checked><span class="sw c-java"></span>Java <small>jadx</small></label>
+      <label class="opt"><input type="checkbox" id="opt-apktool" checked><span class="sw c-smali"></span>Smali + res <small>apktool</small></label>
+      <label class="opt"><input type="checkbox" id="opt-deobf"><span class="sw c-res"></span>Renommer les noms obfusqués</label>
+      <label class="opt"><input type="checkbox" id="opt-splits"><span class="sw c-xml"></span>apktool aussi sur les splits</label>
+    </div>
+
+    <div class="rail-title">Décompilations</div>
+    <ul class="jobs" id="jobs"></ul>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="empty" id="empty">
+      <div class="empty-art" aria-hidden="true">
+        <span class="c-java"></span><span class="c-smali"></span><span class="c-xml"></span><span class="c-res"></span>
+      </div>
+      <h1>Ouvre une appli pour regarder dedans</h1>
+      <p>Dépose un fichier à gauche. jadx reconstruit le code Java, apktool sort le smali et les ressources, et l'aperçu résume le manifeste.</p>
+    </div>
+
+    <section class="job" id="job" hidden>
+      <header class="job-head">
+        <div class="job-id">
+          <span class="dot" id="job-dot"></span>
+          <div>
+            <h1 id="job-title"></h1>
+            <div class="job-sub" id="job-sub"></div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="btn-cancel" hidden>Annuler</button>
+          <button class="btn ghost" id="btn-open">Ouvrir le dossier</button>
+          <button class="btn ghost" id="btn-vscode">VS Code</button>
+          <a class="btn" id="btn-export">Exporter .zip</a>
+          <button class="btn danger" id="btn-delete" title="Supprimer">Supprimer</button>
+        </div>
+      </header>
+
+      <div class="progress" id="job-progress" hidden><i></i><span id="job-step"></span></div>
+
+      <nav class="tabs" id="tabs">
+        <button data-tab="overview" class="on">Aperçu</button>
+        <button data-tab="files">Fichiers</button>
+        <button data-tab="search">Recherche</button>
+        <button data-tab="rebuild">Recompiler</button>
+        <button data-tab="log">Journal <span class="count" id="warn-count" hidden></span></button>
+      </nav>
+
+      <div class="panel" data-panel="overview" id="overview"></div>
+
+      <div class="panel files" data-panel="files" hidden>
+        <div class="tree" id="tree"></div>
+        <div class="viewer">
+          <div class="viewer-bar">
+            <div class="crumbs" id="crumbs">Choisis un fichier</div>
+            <div class="viewer-actions">
+              <button class="btn small ghost" id="btn-copy" disabled>Copier</button>
+              <a class="btn small ghost" id="btn-raw" aria-disabled="true">Télécharger</a>
+            </div>
+          </div>
+          <div class="code" id="code"></div>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="search" hidden>
+        <form class="searchbar" id="search-form">
+          <input id="search-q" placeholder="Chercher une chaîne, une classe, une URL, une clé…" autocomplete="off">
+          <select id="search-scope">
+            <option value="all">Tout</option>
+            <option value="java">Java</option>
+            <option value="smali">Smali</option>
+            <option value="res">Ressources</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="search-regex"> Regex</label>
+          <label class="chk"><input type="checkbox" id="search-case"> Casse</label>
+          <button class="btn">Chercher</button>
+        </form>
+        <div class="presets" id="presets"></div>
+        <div id="search-results" class="results"></div>
+      </div>
+
+      <div class="panel" data-panel="rebuild" hidden>
+        <div id="rebuild-panel"></div>
+      </div>
+
+      <div class="panel" data-panel="log" hidden>
+        <pre class="log" id="log"></pre>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

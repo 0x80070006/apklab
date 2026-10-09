@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="APK Lab" Language="1036" Codepage="1252" Version="$(var.Version)"
+           Manufacturer="APK Lab" UpgradeCode="AE6FAEF1-3BF6-4E70-8B5B-D9069CC29E81">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine"
+             Manufacturer="APK Lab" Description="APK Lab — décompilateur APK / XAPK"
+             Comments="Décompilation, recompilation et signature d'APK pour expérimentation" />
+
+    <MajorUpgrade DowngradeErrorMessage="Une version plus récente d'APK Lab est déjà installée." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="apklab.ico" SourceFile="apklab.ico" />
+    <Property Id="ARPPRODUCTICON" Value="apklab.ico" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <!-- Installe par défaut dans C:\Program Files\APK Lab -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="APK Lab">
+          <Directory Id="StaticDir" Name="static" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" />
+      <Directory Id="DesktopFolder" />
+    </Directory>
+
+    <!-- Fichiers de l'application -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="C_server" Guid="*" Win64="yes">
+        <File Source="..\server.py" KeyPath="yes" />
+      </Component>
+      <Component Id="C_setup" Guid="*" Win64="yes">
+        <File Source="..\setup.py" KeyPath="yes" />
+      </Component>
+      <Component Id="C_paths" Guid="*" Win64="yes">
+        <File Source="..\paths.py" KeyPath="yes" />
+      </Component>
+      <Component Id="C_launch" Guid="*" Win64="yes">
+        <File Id="launch.vbs" Source="..\launch.vbs" KeyPath="yes" />
+      </Component>
+      <Component Id="C_readme" Guid="*" Win64="yes">
+        <File Source="..\README.md" KeyPath="yes" />
+      </Component>
+      <Component Id="C_icon" Guid="*" Win64="yes">
+        <File Source="apklab.ico" KeyPath="yes" />
+      </Component>
+      <!-- Raccourci menu Démarrer (toujours installé) -->
+      <Component Id="C_StartMenu" Guid="*" Win64="yes">
+        <Shortcut Id="SC_StartMenu" Directory="ProgramMenuFolder" Name="APK Lab"
+                  Description="Décompilateur APK / XAPK"
+                  Target="[System64Folder]wscript.exe" Arguments="&quot;[#launch.vbs]&quot;"
+                  WorkingDirectory="INSTALLFOLDER" Icon="apklab.ico" />
+        <RemoveFolder Id="RF_StartMenu" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\APK Lab" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Interface web -->
+    <DirectoryRef Id="StaticDir">
+      <Component Id="C_index" Guid="*" Win64="yes"><File Source="..\static\index.html" KeyPath="yes" /></Component>
+      <Component Id="C_style" Guid="*" Win64="yes"><File Source="..\static\style.css" KeyPath="yes" /></Component>
+      <Component Id="C_app" Guid="*" Win64="yes"><File Source="..\static\app.js" KeyPath="yes" /></Component>
+      <Component Id="C_logo" Guid="*" Win64="yes"><File Source="..\static\logo.png" KeyPath="yes" /></Component>
+      <Component Id="C_icon256" Guid="*" Win64="yes"><File Source="..\static\icon-256.png" KeyPath="yes" /></Component>
+      <Component Id="C_favico" Guid="*" Win64="yes"><File Source="..\static\favicon.ico" KeyPath="yes" /></Component>
+      <Component Id="C_fav16" Guid="*" Win64="yes"><File Source="..\static\favicon-16.png" KeyPath="yes" /></Component>
+      <Component Id="C_fav32" Guid="*" Win64="yes"><File Source="..\static\favicon-32.png" KeyPath="yes" /></Component>
+      <Component Id="C_fav48" Guid="*" Win64="yes"><File Source="..\static\favicon-48.png" KeyPath="yes" /></Component>
+      <Component Id="C_fav64" Guid="*" Win64="yes"><File Source="..\static\favicon-64.png" KeyPath="yes" /></Component>
+    </DirectoryRef>
+
+    <!-- Raccourci bureau (optionnel) -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="C_Desktop" Guid="*" Win64="yes">
+        <Shortcut Id="SC_Desktop" Name="APK Lab" Description="Décompilateur APK / XAPK"
+                  Target="[System64Folder]wscript.exe" Arguments="&quot;[#launch.vbs]&quot;"
+                  WorkingDirectory="INSTALLFOLDER" Icon="apklab.ico" />
+        <RegistryValue Root="HKCU" Key="Software\APK Lab" Name="desktop" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Fonctionnalité principale : dossier configurable (bouton Parcourir) -->
+    <Feature Id="MainApp" Title="APK Lab" Level="1" Absent="disallow"
+             ConfigurableDirectory="INSTALLFOLDER"
+             Description="L'application APK Lab et son interface web.">
+      <ComponentRef Id="C_server" />
+      <ComponentRef Id="C_setup" />
+      <ComponentRef Id="C_paths" />
+      <ComponentRef Id="C_launch" />
+      <ComponentRef Id="C_readme" />
+      <ComponentRef Id="C_icon" />
+      <ComponentRef Id="C_StartMenu" />
+      <ComponentRef Id="C_index" />
+      <ComponentRef Id="C_style" />
+      <ComponentRef Id="C_app" />
+      <ComponentRef Id="C_logo" />
+      <ComponentRef Id="C_icon256" />
+      <ComponentRef Id="C_favico" />
+      <ComponentRef Id="C_fav16" />
+      <ComponentRef Id="C_fav32" />
+      <ComponentRef Id="C_fav48" />
+      <ComponentRef Id="C_fav64" />
+    </Feature>
+    <Feature Id="DesktopShortcut" Title="Raccourci sur le bureau" Level="1"
+             Description="Ajoute un raccourci APK Lab sur le bureau.">
+      <ComponentRef Id="C_Desktop" />
+    </Feature>
+
+    <!-- Lancer APK Lab à la fin de l'installation (case à cocher) -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Lancer APK Lab" />
+    <Property Id="WixShellExecTarget" Value="[#launch.vbs]" />
+    <CustomAction Id="LaunchApp" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    <UI>
+      <UIRef Id="WixUI_FeatureTree" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApp">
+        WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+      </Publish>
+    </UI>
+
+    <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+  </Product>
+</Wix>

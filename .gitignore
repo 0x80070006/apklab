@@ -1,0 +1,8 @@
+tools/
+workspace/
+__pycache__/
+*.pyc
+branding_logo.webp
+installer/.wix/
+installer/build/
+installer/dist/
